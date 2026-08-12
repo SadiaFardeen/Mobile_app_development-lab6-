@@ -2,12 +2,20 @@ import SearchBar from "@/components/search-bar";
 import StudentDetail from "@/components/student-detail";
 import StudentItem from "@/components/student-item";
 import { Student } from "@/data/students";
-import React, { useState } from "react";
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+
 import {
     FlatList,
     Pressable,
     StyleSheet,
     Text,
+    TextInput,
     View,
 } from "react-native";
 
@@ -23,24 +31,35 @@ export default function HomePage() {
 
   const { students } = useStudents();
 
+  const searchRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchRef.current?.focus();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const debouncedQuery = useDebounce(query, 300);
 
-  const filtered = students.filter((s) => {
-    return (
-      s.name
-        .toLowerCase()
-        .includes(debouncedQuery.toLowerCase()) ||
-      s.department
-        .toLowerCase()
-        .includes(debouncedQuery.toLowerCase())
+  const filtered = useMemo(() => {
+    return students.filter(
+      (s) =>
+        s.name
+          .toLowerCase()
+          .includes(debouncedQuery.toLowerCase()) ||
+        s.department
+          .toLowerCase()
+          .includes(debouncedQuery.toLowerCase())
     );
-  });
+  }, [students, debouncedQuery]);
 
-  const handleSelect = (student: Student) => {
+  const handleSelect = useCallback((student: Student) => {
     setSelectedStudent((prev) =>
       prev?.id === student.id ? null : student
     );
-  };
+  }, []);
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -56,6 +75,7 @@ export default function HomePage() {
       </View>
 
       <SearchBar
+        ref={searchRef}
         value={query}
         onChangeText={setQuery}
       />
