@@ -43,17 +43,15 @@ export default function HomePage() {
 
   const debouncedQuery = useDebounce(query, 300);
 
-  const filtered = useMemo(() => {
-    return students.filter(
-      (s) =>
-        s.name
-          .toLowerCase()
-          .includes(debouncedQuery.toLowerCase()) ||
-        s.department
-          .toLowerCase()
-          .includes(debouncedQuery.toLowerCase())
-    );
-  }, [students, debouncedQuery]);
+  cconst filtered = useMemo(() => {
+  const normalizedQuery = debouncedQuery.toLowerCase();
+
+  return students.filter(
+    (s) =>
+      s.name.toLowerCase().includes(normalizedQuery) ||
+      s.department.toLowerCase().includes(normalizedQuery)
+  );
+}, [students, debouncedQuery]);
 
   const handleSelect = useCallback((student: Student) => {
     setSelectedStudent((prev) =>
